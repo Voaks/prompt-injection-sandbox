@@ -1,6 +1,6 @@
 # Prompt Injection Sandbox
 
-A personal side project: a chatbot built on the Claude API, with my own custom guardrails layered on top.
+Chatbot built on the Claude API, with my own custom guardrails layered on top.
 
 ## What it does (planned)
 
@@ -22,13 +22,3 @@ src/
 tests/
   test_guardrails.py   Guardrail tests
 ```
-
-## Setup
-
-1. Copy `.env.example` to `.env` and add your Anthropic API key
-2. Install dependencies: `pip install -r requirements.txt`
-3. Run: `python -m src.main`
-
-## Status
-
-Early work in progress. The project is set up, but the code isn't written yet.
