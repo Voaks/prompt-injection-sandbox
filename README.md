@@ -12,10 +12,16 @@ Chatbot built on the Claude API, with my own custom guardrails layered on top.
 ## Project structure
 
 ```
+Sandbox.pyw            Double-click to launch the app
 src/
-  main.py              Entry point
+  desktop.py           Opens the app in its own window (python -m src.desktop)
+  api.py               What the app's pages call: chat, edit, reset, attack log
+  main.py              Terminal version (python -m src.main)
   chatbot.py           Claude API calls
   config.py            Settings and environment variables
+  attachments.py       Turns uploaded files into something Claude can read
+  attack_log.py        Logs blocked attempts with IP and location
+  web/                 Chat page and attack feed (HTML, CSS, JS)
   guardrails/
     input_filter.py    Checks on user input
     output_filter.py   Checks on model output

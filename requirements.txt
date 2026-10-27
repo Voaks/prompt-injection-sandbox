@@ -1,4 +1,4 @@
 anthropic
 python-dotenv
 pytest
-streamlit
+pywebview

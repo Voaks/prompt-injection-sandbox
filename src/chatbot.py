@@ -39,5 +39,26 @@ class Chatbot:
             reply += "\n[Reply cut off - raise MAX_TOKENS in .env]"
         return reply
 
+    def edit_message(self, index: int, new_text: str):
+        """Replace the text of an earlier message in the history."""
+        message = self.messages[index]
+        if message["role"] == "assistant" or isinstance(message["content"], str):
+            message["content"] = new_text
+        else:
+            # Keep any attached files, replace only the typed text
+            content = [block for block in message["content"] if block.get("type") != "text"]
+            if new_text:
+                content.append({"type": "text", "text": new_text})
+            message["content"] = content
+
+        # Claude's thinking blocks are tied to the exact history they were written in,
+        # so after an edit the API would reject them. Remove them all.
+        for message in self.messages:
+            if message["role"] == "assistant" and isinstance(message["content"], list):
+                message["content"] = [
+                    block for block in message["content"]
+                    if block.type not in ("thinking", "redacted_thinking")
+                ] or "(no reply)"
+
     def reset(self):
         self.messages = []

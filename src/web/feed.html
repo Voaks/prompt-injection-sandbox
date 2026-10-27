@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Attack Feed</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="window">
+    <header class="titlebar">
+      <div class="title pywebview-drag-region">SANDBOX</div>
+      <div class="drag-space pywebview-drag-region"></div>
+      <nav>
+        <a href="index.html">Chat</a>
+        <a href="feed.html" class="active">Attack feed</a>
+      </nav>
+      <div class="controls">
+        <button type="button" data-window="minimize" title="Minimize"><svg viewBox="0 0 12 12"><path d="M2 6h8"/></svg></button>
+        <button type="button" data-window="close" title="Close"><svg viewBox="0 0 12 12"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7"/></svg></button>
+      </div>
+    </header>
+
+    <section class="panel">
+      <div class="panel-head">
+        <span class="label">Attack feed</span>
+        <span class="status">
+          <span class="status-dot on"></span>
+          <span id="count" class="label">Live</span>
+        </span>
+      </div>
+
+      <main class="feed">
+        <div class="table-wrap">
+          <table class="attempts">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>IP</th>
+                <th>City</th>
+                <th>State</th>
+                <th>Caught by</th>
+                <th>Reason</th>
+                <th>Message</th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+      </main>
+
+      <footer class="panel-foot">Live · Refreshes every 2s</footer>
+    </section>
+  </div>
+
+  <script src="window.js"></script>
+  <script src="feed.js"></script>
+</body>
+</html>

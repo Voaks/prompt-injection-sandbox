@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sandbox</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="window">
+    <header class="titlebar">
+      <div class="title pywebview-drag-region">SANDBOX</div>
+      <div class="drag-space pywebview-drag-region"></div>
+      <nav>
+        <a href="index.html" class="active">Chat</a>
+        <a href="feed.html">Attack feed</a>
+        <button id="reset" class="link" type="button">Reset</button>
+      </nav>
+      <div class="controls">
+        <button type="button" data-window="minimize" title="Minimize"><svg viewBox="0 0 12 12"><path d="M2 6h8"/></svg></button>
+        <button type="button" data-window="close" title="Close"><svg viewBox="0 0 12 12"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7"/></svg></button>
+      </div>
+    </header>
+
+    <section class="panel">
+      <div class="panel-head">
+        <span class="label">Chat</span>
+        <span class="status">
+          <span id="status-dot" class="status-dot"></span>
+          <span id="model" class="label"></span>
+        </span>
+      </div>
+
+      <main id="messages" class="messages">
+        <div id="thread" class="thread"></div>
+      </main>
+
+      <form id="composer" class="composer">
+        <div class="composer-inner">
+          <div id="pending-files" class="files"></div>
+          <div class="composer-row">
+            <label class="round" title="Attach files">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              <input id="file-input" type="file" multiple hidden>
+            </label>
+            <textarea id="input" rows="1" placeholder="Message" autofocus></textarea>
+            <button id="send" class="round" type="submit" title="Send">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <footer class="panel-foot">Input filter + Output filter · Logged</footer>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+  <script src="window.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

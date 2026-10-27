@@ -6,3 +6,6 @@ venv/
 
 # Attack logs contain visitor IPs and locations
 logs/
+
+# Windows shortcut with paths specific to this computer
+Sandbox.lnk
