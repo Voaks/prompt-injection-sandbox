@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Logs</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="window">
+    <header class="titlebar">
+      <div class="title pywebview-drag-region">SANDBOX</div>
+      <div class="drag-space pywebview-drag-region"></div>
+      <nav>
+        <a href="index.html">Chat</a>
+        <a href="logs.html" class="active">Logs</a>
+      </nav>
+      <div class="controls">
+        <button type="button" data-window="minimize" title="Minimize"><svg viewBox="0 0 12 12"><path d="M2 6h8"/></svg></button>
+        <button type="button" data-window="close" title="Close"><svg viewBox="0 0 12 12"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7"/></svg></button>
+      </div>
+    </header>
+
+    <section class="panel">
+      <div class="panel-head">
+        <span class="label">Logs</span>
+        <span class="status">
+          <span class="status-dot on"></span>
+          <span id="count" class="label">Live</span>
+        </span>
+      </div>
+
+      <main class="feed">
+        <div class="table-wrap">
+          <table class="attempts">
+            <colgroup>
+              <col class="time"><col class="ip"><col class="city"><col class="state"><col class="stage"><col class="reason"><col class="message">
+            </colgroup>
+            <thead>
+              <tr>
+                <th><button type="button" data-sort="time">Time</button></th>
+                <th><button type="button" data-sort="ip">IP</button></th>
+                <th><button type="button" data-sort="city">City</button></th>
+                <th><button type="button" data-sort="state">State</button></th>
+                <th><button type="button" data-sort="stage">Caught by</button></th>
+                <th><button type="button" data-sort="reason">Reason</button></th>
+                <th><button type="button" data-sort="message">Message</button></th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+      </main>
+
+      <footer class="panel-foot">Live · Click a column to sort · Click a row for details</footer>
+    </section>
+  </div>
+
+  <div id="detail" class="modal" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+      <div class="modal-head">
+        <span id="detail-title" class="label">Incident</span>
+        <div class="modal-nav">
+          <button type="button" id="detail-prev" class="icon-btn" title="Previous (↑)"><svg viewBox="0 0 12 12"><path d="M3 7.5l3-3 3 3"/></svg></button>
+          <button type="button" id="detail-next" class="icon-btn" title="Next (↓)"><svg viewBox="0 0 12 12"><path d="M3 4.5l3 3 3-3"/></svg></button>
+          <button type="button" id="detail-close" class="icon-btn" title="Close (Esc)"><svg viewBox="0 0 12 12"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7"/></svg></button>
+        </div>
+      </div>
+      <dl id="detail-fields" class="fields"></dl>
+      <div class="label">Message</div>
+      <pre id="detail-message" class="full-message"></pre>
+      <div class="modal-foot">
+        <span id="detail-length" class="meta"></span>
+        <button type="button" id="detail-copy" class="btn">Copy message</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="window.js"></script>
+  <script src="logs.js"></script>
+</body>
+</html>

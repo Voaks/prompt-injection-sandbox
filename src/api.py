@@ -3,13 +3,16 @@ import base64
 import anthropic
 
 from src import config
-from src.attack_log import log_attempt, read_attempts
+from src.attack_log import get_attempt, log_attempt, read_attempts
 from src.attachments import ALLOWED_TYPES, MAX_FILE_MB, file_extension, is_text_file, read_text, to_content_block
 from src.chatbot import Chatbot
 from src.guardrails import check_input, check_output
 
 # Shown when a guardrail blocks something, so the user can't tell it was caught and logged
 REFUSAL = "Sorry, I can't help with that."
+
+# The logs table only needs the start of each message; the full one is fetched on click
+PREVIEW_CHARS = 300
 
 
 class Api:
@@ -90,7 +93,15 @@ class Api:
         return {"messages": []}
 
     def attempts(self):
-        return {"attempts": read_attempts()}
+        """Recent blocked attempts for the logs table, with long messages shortened."""
+        attempts = read_attempts()
+        for attempt in attempts:
+            attempt["message"] = attempt["message"][:PREVIEW_CHARS]
+        return {"attempts": attempts}
+
+    def attempt(self, attempt_id):
+        """One attempt in full, for the detail view."""
+        return get_attempt(attempt_id) or {"error": "That log entry no longer exists."}
 
     def _add(self, role, text, files=(), api_index=None):
         entry = {"role": role, "text": text, "files": list(files), "api_index": api_index, "edited": False}

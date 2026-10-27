@@ -487,7 +487,7 @@ a { color: inherit; }
   letter-spacing: 0.04em;
 }
 
-/* Attack feed */
+/* Logs */
 
 .feed {
   flex: 1;
@@ -499,23 +499,61 @@ a { color: inherit; }
 
 .table-wrap { overflow-x: auto; }
 
+/* Columns get fixed shares of the width so the table fits the window; anything cut off
+   is in the detail view. Below 760px it scrolls sideways instead of squeezing further. */
 table.attempts {
   width: 100%;
+  min-width: 760px;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 13px;
 }
 
+.attempts col.time { width: 17%; }
+.attempts col.ip { width: 13%; }
+.attempts col.city { width: 9%; }
+.attempts col.state { width: 10%; }
+.attempts col.stage { width: 12%; }
+.attempts col.reason { width: 19%; }
+.attempts col.message { width: 20%; }
+
 .attempts th {
   text-align: left;
+  padding: 0;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+/* Column headers are sort buttons */
+.attempts th button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
   font-size: 10.5px;
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--faint);
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--line);
-  white-space: nowrap;
+  transition: color 0.15s;
 }
+
+.attempts th button:hover,
+.attempts th button.active { color: var(--fg); }
+
+.attempts th button::after {
+  content: "";
+  width: 8px;
+  font-size: 9px;
+  letter-spacing: 0;
+}
+
+.attempts th button[data-dir="asc"]::after { content: "▲"; }
+.attempts th button[data-dir="desc"]::after { content: "▼"; }
 
 .attempts td {
   padding: 11px 12px;
@@ -525,18 +563,155 @@ table.attempts {
 }
 
 .attempts td.mono {
-  font-family: var(--mono);
-  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
   color: var(--muted);
   white-space: nowrap;
 }
 
-.attempts td.stage { min-width: 120px; }
-.attempts td.reason { min-width: 240px; }
-.attempts td.excerpt { min-width: 220px; color: var(--muted); }
+.attempts td.excerpt { color: var(--muted); }
 .attempts td.empty-row { color: var(--faint); text-align: center; padding: 40px 12px; border: none; }
 
 .attempts tr.new td { animation: flash 1.5s ease-out; }
+
+/* Long text is cut to a few lines in the table; the full thing is in the detail view */
+.attempts td > div {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  overflow-wrap: break-word;
+}
+
+/* Only the free-text columns may break mid-word (for things like long encoded strings) */
+.attempts td.reason > div,
+.attempts td.excerpt > div { overflow-wrap: anywhere; }
+.attempts td.excerpt > div { -webkit-line-clamp: 2; }
+.attempts td.mono > div,
+.attempts td.place > div { display: block; white-space: nowrap; text-overflow: ellipsis; }
+
+.attempts tbody tr { cursor: pointer; outline: none; }
+.attempts tbody tr:hover td,
+.attempts tbody tr:focus-visible td { background: var(--raised); }
+.attempts tbody tr:has(.empty-row) { cursor: default; }
+.attempts tbody tr:has(.empty-row):hover td { background: none; }
+
+/* Detail view for one log entry */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 48px 24px 24px;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.modal[hidden] { display: none; }
+
+.modal-box {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: min(760px, 100%);
+  max-height: calc(100vh - 72px);
+  padding: 18px 20px 20px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-nav { display: flex; gap: 2px; }
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 28px;
+  background: none;
+  border: none;
+  border-radius: 5px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.icon-btn:hover:not(:disabled) { background: var(--raised); color: var(--white); }
+.icon-btn:disabled { opacity: 0.3; cursor: default; }
+
+.icon-btn svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 20px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.fields dt {
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--faint);
+  padding-top: 2px;
+}
+
+.fields dd {
+  margin: 0;
+  color: #d4d4d4;
+  overflow-wrap: anywhere;
+}
+
+.full-message {
+  flex: 1 1 auto;
+  min-height: 80px;
+  margin: 0;
+  padding: 12px 14px;
+  overflow: auto;
+  background: #0c0c0c;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--fg);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  user-select: text;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+.meta {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.modal-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
 
 @keyframes flash {
   from { background: #262626; }
