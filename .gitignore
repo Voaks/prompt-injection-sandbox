@@ -3,3 +3,8 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+
+# Attack logs contain visitor IPs and locations
+logs/
+# GeoLite2 database (MaxMind license forbids redistributing it)
+data/

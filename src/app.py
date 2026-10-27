@@ -2,6 +2,7 @@ import anthropic
 import streamlit as st
 
 from src import config
+from src.attack_log import log_attempt
 from src.attachments import ALLOWED_TYPES, MAX_FILE_MB, is_text_file, read_text, to_content_block
 from src.chatbot import Chatbot
 from src.guardrails import check_input, check_output
@@ -44,8 +45,10 @@ def build_attachments(files):
             return [], f"⚠️ **{f.name}** is over the {MAX_FILE_MB} MB limit"
         # Text files go through the input guardrail too, since they can hide injections
         if is_text_file(f.name):
-            allowed, reason = check_input(read_text(data))
+            file_text = read_text(data)
+            allowed, reason = check_input(file_text)
             if not allowed:
+                log_attempt(st.context.ip_address, f"Input filter (file: {f.name})", reason, file_text)
                 return [], f"🚫 **Blocked by input guardrail ({f.name}):** {reason}"
         blocks.append(to_content_block(f.name, data))
     return blocks, None
@@ -61,6 +64,7 @@ if prompt := st.chat_input("Type a message...", accept_file="multiple", file_typ
     allowed, reason = check_input(user_input)
     attachments, error = build_attachments(prompt.files)
     if not allowed:
+        log_attempt(st.context.ip_address, "Input filter", reason, user_input)
         show("assistant", f"🚫 **Blocked by input guardrail:** {reason}")
     elif error:
         show("assistant", error)
@@ -73,6 +77,7 @@ if prompt := st.chat_input("Type a message...", accept_file="multiple", file_typ
         else:
             allowed, reason = check_output(reply)
             if not allowed:
+                log_attempt(st.context.ip_address, "Output filter", reason, user_input)
                 show("assistant", f"🚫 **Blocked by output guardrail:** {reason}")
             else:
                 show("assistant", reply)
