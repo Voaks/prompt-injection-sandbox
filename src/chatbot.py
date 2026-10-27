@@ -8,8 +8,15 @@ class Chatbot:
         self.client = anthropic.Anthropic(api_key=config.ANTHROPIC_API_KEY)
         self.messages = []
 
-    def send(self, user_message: str) -> str:
-        self.messages.append({"role": "user", "content": user_message})
+    def send(self, user_message: str, attachments: list[dict] | None = None) -> str:
+        if attachments:
+            # Files go before the text so Claude reads them first
+            content = list(attachments)
+            if user_message:
+                content.append({"type": "text", "text": user_message})
+        else:
+            content = user_message
+        self.messages.append({"role": "user", "content": content})
 
         response = self.client.messages.create(
             model=config.CLAUDE_MODEL,
