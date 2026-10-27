@@ -7,6 +7,9 @@ from src.attachments import ALLOWED_TYPES, MAX_FILE_MB, is_text_file, read_text,
 from src.chatbot import Chatbot
 from src.guardrails import check_input, check_output
 
+# Shown when a guardrail blocks something, so the user can't tell it was caught and logged
+REFUSAL = "Sorry, I can't help with that."
+
 st.set_page_config(page_title="Prompt Injection Sandbox", page_icon="🛡️")
 st.title("Prompt Injection Sandbox")
 
@@ -49,7 +52,7 @@ def build_attachments(files):
             allowed, reason = check_input(file_text)
             if not allowed:
                 log_attempt(st.context.ip_address, f"Input filter (file: {f.name})", reason, file_text)
-                return [], f"🚫 **Blocked by input guardrail ({f.name}):** {reason}"
+                return [], REFUSAL
         blocks.append(to_content_block(f.name, data))
     return blocks, None
 
@@ -65,7 +68,7 @@ if prompt := st.chat_input("Type a message...", accept_file="multiple", file_typ
     attachments, error = build_attachments(prompt.files)
     if not allowed:
         log_attempt(st.context.ip_address, "Input filter", reason, user_input)
-        show("assistant", f"🚫 **Blocked by input guardrail:** {reason}")
+        show("assistant", REFUSAL)
     elif error:
         show("assistant", error)
     else:
@@ -78,6 +81,6 @@ if prompt := st.chat_input("Type a message...", accept_file="multiple", file_typ
             allowed, reason = check_output(reply)
             if not allowed:
                 log_attempt(st.context.ip_address, "Output filter", reason, user_input)
-                show("assistant", f"🚫 **Blocked by output guardrail:** {reason}")
+                show("assistant", REFUSAL)
             else:
                 show("assistant", reply)

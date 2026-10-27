@@ -1,45 +1,45 @@
 import ipaddress
 import json
+import urllib.error
+import urllib.request
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
 
-import geoip2.database
-import geoip2.errors
-
 LOG_FILE = Path("logs/attempts.jsonl")
-# Free download from MaxMind (needs an account): https://dev.maxmind.com/geoip/geolite2-free-geolocation-data
-GEOIP_DB = Path("data/GeoLite2-City.mmdb")
 
 
 @lru_cache(maxsize=1024)
-def locate(ip: str | None) -> tuple[str, str]:
-    """Return (city, state) for an IP using the local GeoLite2 database."""
-    if ip is None:
-        return "Localhost", "Localhost"
-    try:
-        addr = ipaddress.ip_address(ip)
-    except ValueError:
-        return "Unknown", "Unknown"
-    if addr.is_private or addr.is_loopback:
-        return "Local network", "Local network"
-    if not GEOIP_DB.exists():
-        return "Unknown (no GeoIP database)", "Unknown (no GeoIP database)"
+def locate(ip: str | None) -> tuple[str, str, str]:
+    """Return (public ip, city, state) for a visitor using ipinfo.io.
 
+    Visitors on this computer or the local network share this machine's
+    public IP, so for them we look up our own public IP instead.
+    """
+    is_local = ip is None
+    if ip is not None:
+        try:
+            addr = ipaddress.ip_address(ip)
+            is_local = addr.is_private or addr.is_loopback
+        except ValueError:
+            return ip, "Unknown", "Unknown"
+
+    url = "https://ipinfo.io/json" if is_local else f"https://ipinfo.io/{ip}/json"
     try:
-        with geoip2.database.Reader(GEOIP_DB) as reader:
-            result = reader.city(ip)
-    except geoip2.errors.AddressNotFoundError:
-        return "Unknown", "Unknown"
-    return result.city.name or "Unknown", result.subdivisions.most_specific.name or "Unknown"
+        with urllib.request.urlopen(url, timeout=3) as response:
+            info = json.load(response)
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
+        return ip or "localhost", "Unknown", "Unknown"
+
+    return info.get("ip", ip or "localhost"), info.get("city", "Unknown"), info.get("region", "Unknown")
 
 
 def log_attempt(ip: str | None, stage: str, reason: str, text: str):
     """Record a blocked prompt injection or jailbreak attempt."""
-    city, state = locate(ip)
+    public_ip, city, state = locate(ip)
     entry = {
         "time": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "ip": ip or "localhost",
+        "ip": public_ip,
         "city": city,
         "state": state,
         "stage": stage,

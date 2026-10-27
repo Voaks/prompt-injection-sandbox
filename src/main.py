@@ -21,7 +21,7 @@ def main():
 
         allowed, reason = check_input(user_input)
         if not allowed:
-            print(f"[Blocked by input guardrail: {reason}]")
+            print("\nClaude: Sorry, I can't help with that.")
             continue
 
         try:
@@ -32,7 +32,7 @@ def main():
 
         allowed, reason = check_output(reply)
         if not allowed:
-            print(f"[Blocked by output guardrail: {reason}]")
+            print("\nClaude: Sorry, I can't help with that.")
             continue
 
         print(f"\nClaude: {reply}")

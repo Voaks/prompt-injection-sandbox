@@ -2,4 +2,3 @@ anthropic
 python-dotenv
 pytest
 streamlit
-geoip2
